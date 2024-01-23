@@ -1,0 +1,18 @@
+{
+  "description": "",
+  "parameters": {
+    "body": {
+      "defaultValue": "true"
+    },
+    "headers": {
+      "defaultValue": "false"
+    },
+    "rc": {
+      "defaultValue": "false"
+    },
+    "beautify": {
+      "defaultValue": "true"
+    }
+  },
+  "content": "<#if rc == \"true\">${_response.statusCode}\n</#if>\n<#if headers == \"true\"><#list _response.headers.entrySet() as header><#list header.value as value>${header.key}: ${value}\n</#list></#list></#if>\n<#if body == \"true\"><#if beautify == \"true\">${_.beautify(_response)}<#else>${_response.stringBody}</#if>\n</#if>"
+}
