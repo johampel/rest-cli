@@ -201,7 +201,7 @@
       </activation>
       <properties>
         <skipITs>false</skipITs>
-        <quarkus.native.additional-build-args>--report-unsupported-elements-at-runtime</quarkus.native.additional-build-args>
+        <quarkus.native.additional-build-args>--report-unsupported-elements-at-runtime,--enable-http,--enable-https</quarkus.native.additional-build-args>
         <quarkus.package.type>native</quarkus.package.type>
       </properties>
     </profile>
