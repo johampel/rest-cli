@@ -14,4 +14,5 @@ Possible topics are:
 |---------------|------------------------------------------------------------------------------------------------------|
 | addresses     | Describes how to address a command or output-template.                                               |
 | input-sources | Describes how to specify different input sources (string literals, files URLs, etc) on command line. |
+| templates     | Describes how to define output templates.                                                            |
 | topics        | This page, list of available topics.                                                                 |

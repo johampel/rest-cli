@@ -79,7 +79,10 @@ public class TemplateHelpCommand extends TemplateCommandBase {
     Template template = templateRepository.getTemplate(context.configPath(), address)
         .orElseThrow(() -> new ExecutionException("Output template \"%s\" does not exist.".formatted(address)));
 
-    context.out().markdown(template.config().description());
+    context.out().markdown(context.templateRenderer().render(
+        template.config().description(),
+        CommandUtils.createHelpTextTemplateModel(context)
+    ));
     return true;
   }
 }

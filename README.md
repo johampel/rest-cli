@@ -4,7 +4,7 @@ A command line utility to manage and run HTTP requests, with the focus on JSON b
 
 ## How to build
 
-This is a Java 17 based [https://quarkus.io/](Quarkus) application. In order to built the final executable run:
+This is a Java 17/[Quarkus](https://quarkus.io/) based application. In order to build the final executable run:
 
 ```shell script
 ./mvnw package -Pnative
@@ -56,7 +56,7 @@ pet (custom, parent)
 └── uploadFile (custom, http): POST https://petstore3.swagger.io/api/v3/pet/${pet_id}/uploadImage
 ```
 
-Now you can simply call one of the commands, lile `findPetsByStatus`:
+Now you can simply call one of the commands, like `findPetsByStatus`:
 
 ```shell script
 restcli pet findPetsByStatus --status available
@@ -85,12 +85,12 @@ The output will be something like:
   ...
 ```
 
-Note that in this example we access an external service and the we have no control over the pets available in the shop, so the return values
+Note that in this example we access an external service, therefore we have no control over the pets available in the shop, so the return values
 might differ when you try it.
 
 Although the commands work pretty ok for this specific service, there are two shortcomings we want to work around:
 
-1. The commands as they are a strongly bound to the public petshop server. What happens, if we want to host the petshop service on a different
+1. The commands are strongly bound to the public petshop server. What happens, if we want to host the petshop service on a different
    server, let's say on `localhost`?
 2. The petshop service does not talk only XML, but also JSON. So how to achieve that the commands are able to talk
    JSON as well?
@@ -134,7 +134,7 @@ restcli pet findPetsByStatus --status available
 ```
 
 The second issue is the media type of the response: By default, the commands return the content in the first media type found in the
-OpenAPI specification. If the REST enpoint supports more than one media type, you may add an option to the commands to select the media type:
+OpenAPI specification. If the REST endpoint supports more than one media type, you may add an option to the commands to select the media type:
 
 ```shell script
 restcli cmd openapi pet --base-uri '${petshop_server}' url:${openapi_spec} --replace --force --accept-option a

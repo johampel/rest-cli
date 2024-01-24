@@ -1,5 +1,5 @@
 {
-  "description": "",
+  "description": "Default template of `${applicationName}`.\nIt knows the following parameters:\n\n`beautify` (type: `boolean`, default: `true`)\n\n>If `true`, the response body is beautified so that in case of JSON or XML bodies are indented by according\nspaces. If `false` the response body is printed as it is. \n\n`body` (type: `boolean`, default: `true`)\n\n>If `true`, the response body is printed, otherwise not.\n\n`headers` (type: `boolean`, default: `false`)\n\n>If `true`, the response headers are printed, otherwise not.\n\n`rc` (type: `boolean`, default: `false`)\n\n>If `true`, the response code is printed, otherwise not.",
   "parameters": {
     "body": {
       "defaultValue": "true"
