@@ -48,6 +48,7 @@ Response or output templates are managed by the `template` command and its sub-c
 Within the template content the following variables are available:
 
 - All parameters defined by the template
+- `-` the internal API.
 - `_env` contains the settings/variables of the currently active environment.
 - `_request` contains the original HTTP request. It has the following properties:
   - `method`: The HTTP method.
