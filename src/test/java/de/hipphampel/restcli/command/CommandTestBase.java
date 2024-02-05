@@ -56,8 +56,8 @@ public class CommandTestBase {
   protected TemplateRenderer templateRenderer;
   @Inject
   protected ApiFactory templateApiFactory;
-  private StringWriter out;
-  private StringWriter err;
+  protected StringWriter out;
+  protected StringWriter err;
   protected CommandContext context;
 
   protected Path rootDir;

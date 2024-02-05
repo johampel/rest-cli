@@ -144,10 +144,14 @@ class ApiTest extends CommandTestBase {
         ]
         """.getBytes(StandardCharsets.UTF_8)));
     try (Response response = new Response(documentBuilderFactory, objectMapper, httpResponse, 10000)) {
-      assertThat(api.jq(response, "$.[*].id")).isEqualTo(List.of(1, 2, 4));
+      assertThat(api.jq(response.getJsonBody(), "$.[*].id")).isEqualTo(List.of(1, 2, 4));
     }
   }
 
+  @Test
+  void url_encode() {
+    assertThat(api.url_encode("some#text")).isEqualTo("some%23text");
+  }
   @Test
   @EnabledOnOs({LINUX, MAC})
   void sh_unix() throws IOException, InterruptedException {

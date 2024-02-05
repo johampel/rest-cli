@@ -15,11 +15,19 @@ document to have indents and linebreaks at those places that it looks more nicel
 `call([<global-options>] <command> [<args>...])`
 
 >Invokes a command of ${applicationName}. Optionally, similar to alias commands, you may pass as
-global options one of `-o | --output-parameter`, `-f | --format`, or `-t | --template` (type `${applicationName) help`
+global options one of `-o | --output-parameter`, `-f | --format`, or `-t | --template` (type `${applicationName} help`
 for more information about them). `<command>` and `<args>` are the command and arguments to be executed.
 
+`jq(<object>, <path>)`
+
+>Evaluates the JSON path `<path>` on the given `<object>`. `<path>` must be a valid JSON path following the notation described
+at `https://github.com/json-path/JsonPath`.
 
 `sh(<args>...)`
 
 >Invokes a shell command consisting of the given `<args>` and returns its standard output. For example, in order to 
 produce a directory listing of `/` on a UNIX platform, you may call `${r"${_.call("}"ls, "/")}`.
+
+`url_encode(<str>)`
+
+>Performs an URL encoding on the given string and returns the according result.

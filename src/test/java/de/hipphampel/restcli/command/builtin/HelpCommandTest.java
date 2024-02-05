@@ -41,7 +41,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 class HelpCommandTest extends CommandTestBase {
@@ -282,5 +284,19 @@ class HelpCommandTest extends CommandTestBase {
                   `test-app help :topics`.
             """,
         "");
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      ":unknown,       'General help topics'",
+      ":addresses,     'Addresses'",
+      ":api,           'The internal API'",
+      ":input-sources, 'Input sources'",
+      ":templates,     'Templates'",
+      ":topics,        'General help topics'",
+  })
+  void topicHelp(String topic, String firstLine) {
+    command.showTopicHelp(context, List.of(topic));
+    assertThat(out.toString().split("\n")[0]).isEqualTo(firstLine);
   }
 }

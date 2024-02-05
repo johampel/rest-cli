@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -94,19 +95,23 @@ public class Api {
     return body.getStringBody();
   }
 
-  public String beautifyJson(Object value) throws JsonProcessingException {
+  String beautifyJson(Object value) throws JsonProcessingException {
     return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
   }
 
-  public String beautifyXml(Document value) throws TransformerException, IOException {
+  String beautifyXml(Document value) throws TransformerException, IOException {
     try (StringWriter out = new StringWriter()) {
       transformer.transform(new DOMSource(value), new StreamResult(out));
       return out.toString();
     }
   }
 
-  public Object jq(BodyAndHeaders<?> body, String path) throws IOException {
-    return JsonPath.read(body.getJsonBody(), path);
+  public Object jq(Object value, String path) {
+    return JsonPath.read(value, path);
+  }
+
+  public String url_encode(String str) {
+    return URLEncoder.encode(str, StandardCharsets.UTF_8);
   }
 
   public String sh(String... args) throws IOException, InterruptedException {
