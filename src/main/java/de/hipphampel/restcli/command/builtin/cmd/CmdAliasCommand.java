@@ -86,8 +86,8 @@ public class CmdAliasCommand extends CmdWriteCommandBase {
       >The `<alias-definition>` contains the first portion of or the complete command line to be executed. It might contain also some of the
       global options available for `${applicationName}` in general. For example `-orc=true -obody=false http get http://example.com` will be
       an alias definition for the `http` command that passes the `rc` and `body` output parameters as global output parameters (so that the
-      command outputs the status code only). The available global options are `-o | --output-parameter`, `-f | --format`, and 
-      `-t | --template`; type `${applicationName} help` to get more information about them.
+      command outputs the status code only). The available global options are `-e | --environment`,  `-o | --output-parameter`, 
+      `-f | --format`, and `-t | --template`; type `${applicationName} help` to get more information about them.
            
             
       -d | --description [--main|--arguments|--infos] <description>

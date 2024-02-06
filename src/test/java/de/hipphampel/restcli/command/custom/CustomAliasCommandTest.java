@@ -58,9 +58,6 @@ public class CustomAliasCommandTest extends HttpCommandTestBase {
   CommandInvoker invoker;
 
   @Inject
-  CommandLineParser parser;
-
-  @Inject
   ObjectMapper objectMapper;
 
   @BeforeEach

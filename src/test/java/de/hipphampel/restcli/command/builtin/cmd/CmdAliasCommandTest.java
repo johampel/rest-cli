@@ -244,9 +244,9 @@ class CmdAliasCommandTest extends CommandTestBase {
                   that passes the `rc` and `body` output parameters as
                   global output parameters (so that the command outputs
                   the status code only). The available global options
-                  are `-o | --output-parameter`, `-f | --format`, and
-                  `-t | --template`; type `test-app help` to get more
-                  information about them.
+                  are `-e | --environment`, `-o | --output-parameter`,
+                  `-f | --format`, and `-t | --template`; type
+                  `test-app help` to get more information about them.
               -d | --description [--main|--arguments|--infos]
               <description>
                   Sets a section of the command help text. The

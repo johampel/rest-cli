@@ -23,16 +23,26 @@
 package de.hipphampel.restcli.command;
 
 import static de.hipphampel.restcli.cli.commandline.CommandLineSpec.positional;
+import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_ENVIRONMENT;
+import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_FORMAT;
+import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_OUTPUT_PARAMETER;
+import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_TEMPLATE;
+import static de.hipphampel.restcli.command.ParentCommand.CMD_ARG_SUB_COMMAND;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import de.hipphampel.restcli.TestUtils;
 import de.hipphampel.restcli.cli.commandline.CommandLine;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec.Positional;
+import de.hipphampel.restcli.env.Environment;
+import de.hipphampel.restcli.env.EnvironmentRepository;
 import de.hipphampel.restcli.exception.ExecutionException;
 import de.hipphampel.restcli.exception.UsageException;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -40,10 +50,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 class CommandInvokerTest extends CommandTestBase {
+
+  @Inject
+  EnvironmentRepository environmentRepository;
 
   @BeforeEach
   protected void beforeEach(@TempDir Path rootDir) throws IOException {
@@ -208,5 +222,58 @@ class CommandInvokerTest extends CommandTestBase {
         """
             *** error test-app: Unable to find application command.
             """);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      ",              ,              ",
+      "'-troot',      ,              '-troot'",
+      "'-troot',      '-tchild',     '-tchild'",
+      "'-froot',      ,              '-froot'",
+      "'-froot',      '-fchild',     '-fchild'",
+      "'-oa=1;-ob=2', ,              '-oa=1;-ob=2'",
+      "'-oa=1;-ob=2', '-ob=3;-oc=4', '-oa=1;-ob=3;-oc=4'",
+      ",              '-ob=3;-oc=4', '-ob=3;-oc=4'",
+  })
+  void mergeOutputOptions(String root, String alias, String expected) {
+    CommandLineSpec spec = new CommandLineSpec(false, CMD_OPT_ENVIRONMENT, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE, CMD_OPT_OUTPUT_PARAMETER,
+        CMD_ARG_SUB_COMMAND);
+
+    CommandLine rootCommandLine = commandLineParser.parseCommandLine(spec, TestUtils.stringToList(root));
+    CommandLine aliasCommandLine = commandLineParser.parseCommandLine(spec, TestUtils.stringToList(alias));
+    CommandLine expectedCommandLine = commandLineParser.parseCommandLine(spec, TestUtils.stringToList(expected));
+    commandInvoker.mergeOutputOptions(rootCommandLine, aliasCommandLine);
+
+    assertThat(aliasCommandLine).isEqualTo(expectedCommandLine);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      ",         'root'",
+      "-echild,  'child'"
+  })
+  void getEnvironment_ok(String alias, String expected) {
+    Environment rootEnvironment = environmentRepository.createTransientEnvironment("root", null);
+    environmentRepository.storeEnvironment(context.configPath(), rootEnvironment, false);
+    context.environment(rootEnvironment);
+    Environment childEnvironment = environmentRepository.createTransientEnvironment("child", null);
+    environmentRepository.storeEnvironment(context.configPath(), childEnvironment, false);
+    CommandLineSpec spec = new CommandLineSpec(false, CMD_OPT_ENVIRONMENT, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE, CMD_OPT_OUTPUT_PARAMETER,
+        CMD_ARG_SUB_COMMAND);
+    CommandLine aliasCommandLine = commandLineParser.parseCommandLine(spec, TestUtils.stringToList(alias));
+
+    Environment environment = commandInvoker.getEnvironment(context, aliasCommandLine);
+    assertThat(environment.getName()).isEqualTo(expected);
+  }
+
+  @Test
+  void getEnvironment_fail() {
+    CommandLineSpec spec = new CommandLineSpec(false, CMD_OPT_ENVIRONMENT, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE, CMD_OPT_OUTPUT_PARAMETER,
+        CMD_ARG_SUB_COMMAND);
+    CommandLine aliasCommandLine = commandLineParser.parseCommandLine(spec, List.of("-enot_found"));
+
+    assertThatThrownBy(() -> commandInvoker.getEnvironment(context, aliasCommandLine))
+        .isInstanceOf(ExecutionException.class)
+        .hasMessage("No such environment \"not_found\".");
   }
 }

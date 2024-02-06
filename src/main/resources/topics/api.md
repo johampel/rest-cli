@@ -15,7 +15,7 @@ document to have indents and linebreaks at those places that it looks more nicel
 `call([<global-options>] <command> [<args>...])`
 
 >Invokes a command of ${applicationName}. Optionally, similar to alias commands, you may pass as
-global options one of `-o | --output-parameter`, `-f | --format`, or `-t | --template` (type `${applicationName} help`
+global options any of `-e | --environment`, `-o | --output-parameter`, `-f | --format`, or `-t | --template` (type `${applicationName} help`
 for more information about them). `<command>` and `<args>` are the command and arguments to be executed.
 
 `jq(<object>, <path>)`

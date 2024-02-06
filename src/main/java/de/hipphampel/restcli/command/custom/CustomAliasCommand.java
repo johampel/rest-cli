@@ -23,29 +23,15 @@
 package de.hipphampel.restcli.command.custom;
 
 import static de.hipphampel.restcli.cli.commandline.CommandLineSpec.positional;
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_FORMAT;
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_OUTPUT_PARAMETER;
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_TEMPLATE;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_FORMAT;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_OUTPUT_PARAMETER;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_TEMPLATE;
-import static de.hipphampel.restcli.command.ParentCommand.CMD_ARG_SUB_COMMAND;
-import static de.hipphampel.restcli.command.ParentCommand.CMD_ARG_SUB_COMMAND_ARGS;
 
 import de.hipphampel.restcli.cli.commandline.CommandLine;
-import de.hipphampel.restcli.cli.commandline.CommandLineParser;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec.Positional;
 import de.hipphampel.restcli.command.CommandAddress;
 import de.hipphampel.restcli.command.CommandContext;
 import de.hipphampel.restcli.command.config.CommandConfig;
-import de.hipphampel.restcli.exception.ExecutionException;
-import de.hipphampel.restcli.utils.KeyValue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CustomAliasCommand extends CustomCommand {
 
@@ -54,11 +40,8 @@ public class CustomAliasCommand extends CustomCommand {
       .optional()
       .build();
 
-  private final CommandLineParser commandLineParser;
-
-  public CustomAliasCommand(CommandLineParser commandLineParser, CommandAddress address, CommandConfig config) {
+  public CustomAliasCommand(CommandAddress address, CommandConfig config) {
     super(address, config);
-    this.commandLineParser = Objects.requireNonNull(commandLineParser);
   }
 
   @Override
@@ -68,48 +51,8 @@ public class CustomAliasCommand extends CustomCommand {
 
   @Override
   public boolean execute(CommandContext context, CommandLine commandLine) {
-    CommandContext aliasContext = new CommandContext(context);
-    CommandLine aliasCommandLine = prepareCommandLine(context, commandLine);
-    aliasContext.rootCommandLine(aliasCommandLine);
-
-    String subCommand = aliasCommandLine.getValue(CMD_ARG_SUB_COMMAND)
-        .orElseThrow(() -> new ExecutionException("No sub command in alias."));
-    List<String> subCommandArgs = aliasCommandLine.getValues(CMD_ARG_SUB_COMMAND_ARGS);
-    return context.commandInvoker().invokeCommand(aliasContext, CommandAddress.ROOT.child(subCommand), subCommandArgs);
-  }
-
-  CommandLine prepareCommandLine(CommandContext context, CommandLine commandLine) {
     List<String> args = new ArrayList<>(config().getAliasConfig());
     args.addAll(commandLine.getValues(CMD_ARG_ALIAS_ARGS));
-
-    CommandLineSpec aliasCommandLineSpec = new CommandLineSpec(false, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE, CMD_OPT_OUTPUT_PARAMETER,
-        CMD_ARG_SUB_COMMAND);
-    CommandLine aliasCommandLine = commandLineParser.parseCommandLine(aliasCommandLineSpec, args);
-    mergeOutputOptions(context.rootCommandLine(), aliasCommandLine);
-    return aliasCommandLine;
-  }
-
-  void mergeOutputOptions(CommandLine rootCommandLine, CommandLine aliasCommandLine) {
-    if (!aliasCommandLine.hasOption(CMD_OPT_FORMAT) && !aliasCommandLine.hasOption(CMD_OPT_TEMPLATE)) {
-      if (rootCommandLine.hasOption(CMD_OPT_FORMAT)) {
-        aliasCommandLine.addOption(CMD_OPT_FORMAT);
-        aliasCommandLine.addValues(CMD_ARG_FORMAT, rootCommandLine.getValues(CMD_ARG_FORMAT));
-      }
-      if (rootCommandLine.hasOption(CMD_OPT_TEMPLATE)) {
-        aliasCommandLine.addOption(CMD_OPT_TEMPLATE);
-        aliasCommandLine.addValues(CMD_ARG_TEMPLATE, rootCommandLine.getValues(CMD_ARG_TEMPLATE));
-      }
-    }
-
-    List<String> mergedParameters = Stream.concat(rootCommandLine.getValues(CMD_ARG_OUTPUT_PARAMETER).stream(),
-            aliasCommandLine.getValues(CMD_ARG_OUTPUT_PARAMETER).stream())
-        .collect(Collectors.groupingBy(kv -> KeyValue.fromString(kv).key()))
-        .values().stream()
-        .map(list -> list.get(list.size() - 1))
-        .toList();
-    if (!mergedParameters.isEmpty()) {
-      aliasCommandLine.addOption(CMD_OPT_OUTPUT_PARAMETER);
-      aliasCommandLine.setValues(CMD_ARG_OUTPUT_PARAMETER, mergedParameters);
-    }
+    return context.commandInvoker().invokeAliasCommand(context, args, null, null);
   }
 }

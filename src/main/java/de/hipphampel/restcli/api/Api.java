@@ -23,27 +23,14 @@
 package de.hipphampel.restcli.api;
 
 
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_FORMAT;
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_OUTPUT_PARAMETER;
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_TEMPLATE;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_FORMAT;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_OUTPUT_PARAMETER;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_TEMPLATE;
-import static de.hipphampel.restcli.command.ParentCommand.CMD_ARG_SUB_COMMAND;
-import static de.hipphampel.restcli.command.ParentCommand.CMD_ARG_SUB_COMMAND_ARGS;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import de.hipphampel.restcli.cli.Output;
-import de.hipphampel.restcli.cli.commandline.CommandLine;
 import de.hipphampel.restcli.cli.commandline.CommandLineParser;
-import de.hipphampel.restcli.cli.commandline.CommandLineSpec;
-import de.hipphampel.restcli.command.CommandAddress;
 import de.hipphampel.restcli.command.CommandContext;
 import de.hipphampel.restcli.exception.ExecutionException;
 import de.hipphampel.restcli.rest.BodyAndHeaders;
-import de.hipphampel.restcli.utils.KeyValue;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,11 +38,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
@@ -135,49 +119,15 @@ public class Api {
 
   public String call(String... args) throws IOException {
     try (StringWriter out = new StringWriter(); StringWriter err = new StringWriter()) {
-      CommandContext aliasContext = new CommandContext(context)
-          .out(new Output(out).withOutputWidth(-1).withStyles(false))
-          .err(new Output(err).withOutputWidth(-1).withStyles(false));
-
-      CommandLineSpec aliasCommandLineSpec = new CommandLineSpec(false, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE, CMD_OPT_OUTPUT_PARAMETER,
-          CMD_ARG_SUB_COMMAND);
-      CommandLine aliasCommandLine = commandLineParser.parseCommandLine(aliasCommandLineSpec, Arrays.asList(args));
-      mergeOutputOptions(context.rootCommandLine(), aliasCommandLine);
-      aliasContext.rootCommandLine(aliasCommandLine);
-
-      String subCommand = aliasCommandLine.getValue(CMD_ARG_SUB_COMMAND)
-          .orElseThrow(() -> new ExecutionException("No sub command in alias."));
-      List<String> subCommandArgs = aliasCommandLine.getValues(CMD_ARG_SUB_COMMAND_ARGS);
-      if (!context.commandInvoker().invokeCommand(aliasContext, CommandAddress.ROOT.child(subCommand), subCommandArgs)) {
+      boolean result = context.commandInvoker().invokeAliasCommand(
+          context,
+          List.of(args),
+          new Output(out).withOutputWidth(-1).withStyles(false),
+          new Output(err).withOutputWidth(-1).withStyles(false));
+      if (!result) {
         throw new ExecutionException("sub command failed: %s.".formatted(err.toString()));
       }
-
       return out.toString();
     }
   }
-
-  void mergeOutputOptions(CommandLine rootCommandLine, CommandLine aliasCommandLine) {
-    if (!aliasCommandLine.hasOption(CMD_OPT_FORMAT) && !aliasCommandLine.hasOption(CMD_OPT_TEMPLATE)) {
-      if (rootCommandLine.hasOption(CMD_OPT_FORMAT)) {
-        aliasCommandLine.addOption(CMD_OPT_FORMAT);
-        aliasCommandLine.addValues(CMD_ARG_FORMAT, rootCommandLine.getValues(CMD_ARG_FORMAT));
-      }
-      if (rootCommandLine.hasOption(CMD_OPT_TEMPLATE)) {
-        aliasCommandLine.addOption(CMD_OPT_TEMPLATE);
-        aliasCommandLine.addValues(CMD_ARG_TEMPLATE, rootCommandLine.getValues(CMD_ARG_TEMPLATE));
-      }
-    }
-
-    List<String> mergedParameters = Stream.concat(rootCommandLine.getValues(CMD_ARG_OUTPUT_PARAMETER).stream(),
-            aliasCommandLine.getValues(CMD_ARG_OUTPUT_PARAMETER).stream())
-        .collect(Collectors.groupingBy(kv -> KeyValue.fromString(kv).key()))
-        .values().stream()
-        .map(list -> list.get(list.size() - 1))
-        .toList();
-    if (!mergedParameters.isEmpty()) {
-      aliasCommandLine.addOption(CMD_OPT_OUTPUT_PARAMETER);
-      aliasCommandLine.setValues(CMD_ARG_OUTPUT_PARAMETER, mergedParameters);
-    }
-  }
-
 }

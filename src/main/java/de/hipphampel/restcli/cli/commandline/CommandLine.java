@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CommandLine extends Values {
@@ -66,5 +67,25 @@ public class CommandLine extends Values {
       super.addValues(key, values);
       CommandLine.this.addValues(key, values);
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    CommandLine that = (CommandLine) o;
+    return Objects.equals(subsets, that.subsets);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), subsets);
   }
 }

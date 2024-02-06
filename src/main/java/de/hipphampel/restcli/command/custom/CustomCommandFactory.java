@@ -22,7 +22,6 @@
  */
 package de.hipphampel.restcli.command.custom;
 
-import de.hipphampel.restcli.cli.commandline.CommandLineParser;
 import de.hipphampel.restcli.command.Command;
 import de.hipphampel.restcli.command.CommandAddress;
 import de.hipphampel.restcli.command.config.CommandConfig;
@@ -41,11 +40,10 @@ public class CustomCommandFactory {
   RequestExecutorFactory executorFactory;
   @Inject
   ResponseActionFactory responseActionFactory;
-  @Inject
-  CommandLineParser commandLineParser;
+
   public Command createCommand(CommandAddress address, CommandConfig config) {
     return switch (config.getType()) {
-      case Alias -> new CustomAliasCommand(commandLineParser, address, config);
+      case Alias -> new CustomAliasCommand(address, config);
       case Http -> new CustomHttpCommand(executorFactory, responseActionFactory, templateRepository, address, config);
       case Parent -> new CustomParentCommand(address, config);
     };
