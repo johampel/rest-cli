@@ -75,7 +75,7 @@ public class ApplicationCommand extends BuiltinParentCommand {
       
       >The name of the sub-command to execute. If omitted, this help page is shown. For a list of available sub-commands see the list below.
        
-      - c | --config <config>
+      -c | --config <config>
       
       >If specified, it uses the given `<config>` for the application configuration. The configuration contains several settings that
       influence the behavior of this application (e.g. where to find commands, which environment to use, ...). If not specified,

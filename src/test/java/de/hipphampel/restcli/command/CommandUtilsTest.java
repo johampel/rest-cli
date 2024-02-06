@@ -343,7 +343,7 @@ class CommandUtilsTest extends CommandTestBase {
         """
             <#if rc == "true">${_response.statusCode}
             </#if>
-            <#if headers == "true"><#list _response.headers.entrySet() as header><#list header.value as value>${header.key}: ${value}
+            <#if headers == "true"><#list _response.headerKeys() as key><#list _response.headers[key] as value>${key}: ${value}
             </#list></#list></#if>
             <#if body == "true"><#if beautify == "true">${_.beautify(_response)}<#else>${_response.stringBody}</#if>
             </#if>""");
@@ -389,7 +389,7 @@ class CommandUtilsTest extends CommandTestBase {
         """
             <#if rc == "true">${_response.statusCode}
             </#if>
-            <#if headers == "true"><#list _response.headers.entrySet() as header><#list header.value as value>${header.key}: ${value}
+            <#if headers == "true"><#list _response.headerKeys() as key><#list _response.headers[key] as value>${key}: ${value}
             </#list></#list></#if>
             <#if body == "true"><#if beautify == "true">${_.beautify(_response)}<#else>${_response.stringBody}</#if>
             </#if>""");

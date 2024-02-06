@@ -25,11 +25,13 @@ package de.hipphampel.restcli.rest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hipphampel.restcli.io.Openable;
+import de.hipphampel.restcli.utils.Pair;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,6 +51,10 @@ public abstract class BodyAndHeaders<T extends Openable> {
   }
 
   public abstract Map<String, List<String>> getHeaders();
+
+  public List<String> headerKeys() {
+    return new ArrayList<>(getHeaders().keySet());
+  }
 
   @JsonIgnore
   public abstract T getBody();

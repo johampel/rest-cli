@@ -24,6 +24,7 @@ package de.hipphampel.restcli.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
@@ -42,7 +43,8 @@ public class RequestExecutor {
 
   public Response execute(Request request) throws IOException {
     try {
-      HttpResponse<InputStream> response = context.client().send(request.toHttpRequest(), HttpResponse.BodyHandlers.ofInputStream());
+      HttpRequest httpRequest = request.toHttpRequest();
+      HttpResponse<InputStream> response = context.client().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
       return responseBuilder.toResponse(response);
     } catch (InterruptedException ie) {
       Thread.currentThread().interrupt();
