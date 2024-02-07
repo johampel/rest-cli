@@ -53,6 +53,22 @@ class ValidatorsTest {
 
   @ParameterizedTest
   @CsvSource({
+      "'',      'Value \"\" passed for \"<arg>\" is not a valid command name.'",
+      "'abcd',  ",
+      "'ab/cd', 'Value \"ab/cd\" passed for \"<arg>\" is not a valid command name.'",
+      "'ab+cd', 'Value \"ab+cd\" passed for \"<arg>\" is not a valid command name.'",
+  })
+  void COMMAND_NAME_VALIDATOR(String value, String expectedException) {
+    try {
+      Validators.COMMAND_NAME_VALIDATOR.accept(ARG, value);
+      assertThat(expectedException).isNull();
+    } catch (UsageException ue) {
+      assertThat(ue).hasMessage(expectedException);
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
       "'',      ",
       "'abcd',  ",
       "'ab/cd', ",
