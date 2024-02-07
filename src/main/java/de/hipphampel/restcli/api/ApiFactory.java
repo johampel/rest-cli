@@ -24,7 +24,6 @@ package de.hipphampel.restcli.api;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hipphampel.restcli.cli.commandline.CommandLineParser;
 import de.hipphampel.restcli.command.CommandContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -37,10 +36,8 @@ public class ApiFactory {
   ObjectMapper objectMapper;
   @Inject
   Transformer transformer;
-  @Inject
-  CommandLineParser commandLineParser;
 
   public Api createApi(CommandContext context) {
-    return new Api(context, objectMapper, transformer, commandLineParser);
+    return new Api(context, objectMapper, transformer);
   }
 }

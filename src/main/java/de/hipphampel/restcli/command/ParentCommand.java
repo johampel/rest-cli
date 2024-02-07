@@ -27,6 +27,7 @@ import static de.hipphampel.restcli.cli.commandline.CommandLineSpec.positional;
 import de.hipphampel.restcli.cli.commandline.CommandLine;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec.Positional;
+import de.hipphampel.restcli.cli.commandline.Validators;
 import de.hipphampel.restcli.cli.format.Block;
 import de.hipphampel.restcli.cli.format.FormatBuilder;
 import de.hipphampel.restcli.cli.format.ParagraphBlock;
@@ -43,6 +44,7 @@ public interface ParentCommand extends Command {
       .build();
 
   Positional CMD_ARG_SUB_COMMAND = positional("<sub-command>")
+      .validator(Validators.COMMAND_NAME_VALIDATOR)
       .optional()
       .dependency(CMD_ARG_SUB_COMMAND_ARGS)
       .build();

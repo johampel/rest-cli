@@ -11,8 +11,8 @@ This topic explains the syntax of these addresses.
 **Command Address**
 
 A command address is intended to identify a command. The address is simply a path to this command through the command tree, each command
-separated by a `/` sign. For example the `exp` command of the parent command `env` has the address
-`env/get`. With `foo/bar/baz` we would address the `baz` command which is a sub-command of `bar`, which in turn is the
+separated by a `/` sign. For example the `get` command of the parent command `env` has the address
+`env/get`. With `foo/bar/baz` we would address the `baz` command which is a sub-command of `bar`, which in turn is a
 sub-command of `foo`.
 
 The special empty path (so an empty string) refers to ${applicationName} itself.

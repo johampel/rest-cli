@@ -53,6 +53,12 @@ public class Validators {
     }
   };
 
+  public static final BiConsumer<Positional, String> COMMAND_NAME_VALIDATOR = (positional, value) -> {
+    if (!CommandAddress.isValidCommandName(value)) {
+      throw new UsageException("Value \"%s\" passed for \"%s\" is not a valid command name.".formatted(value, positional.name()));
+    }
+  };
+
   public static final BiConsumer<Positional, String> TEMPLATE_ADDRESS_VALIDATOR = (positional, value) -> {
     try {
       TemplateAddress.fromString(value);

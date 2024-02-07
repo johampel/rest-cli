@@ -27,7 +27,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import de.hipphampel.restcli.cli.Output;
-import de.hipphampel.restcli.cli.commandline.CommandLineParser;
 import de.hipphampel.restcli.command.CommandContext;
 import de.hipphampel.restcli.exception.ExecutionException;
 import de.hipphampel.restcli.rest.BodyAndHeaders;
@@ -52,13 +51,10 @@ public class Api {
   private final CommandContext context;
   private final ObjectMapper objectMapper;
   private final Transformer transformer;
-  private final CommandLineParser commandLineParser;
-
-  public Api(CommandContext context, ObjectMapper objectMapper, Transformer transformer, CommandLineParser commandLineParser) {
+  public Api(CommandContext context, ObjectMapper objectMapper, Transformer transformer) {
     this.context = Objects.requireNonNull(context);
     this.objectMapper = Objects.requireNonNull(objectMapper);
     this.transformer = Objects.requireNonNull(transformer);
-    this.commandLineParser = Objects.requireNonNull(commandLineParser);
   }
 
 
