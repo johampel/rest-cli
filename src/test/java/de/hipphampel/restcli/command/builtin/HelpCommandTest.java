@@ -78,8 +78,8 @@ class HelpCommandTest extends CommandTestBase {
                   restcli [-c|--config <config-dir>] [-e|--environment
                           <environment>] [-i|--interactive]
                           [-o|--output-parameter <key>=<value>]...
-                          [(-f|--format <format>) | (-t|--template
-                          <name-or-address>)] [<sub-command>
+                          [--version] [(-f|--format <format>) |
+                          (-t|--template <name-or-address>)] [<sub-command>
                           [<sub-command-args>...]]
 
                 Description
@@ -154,6 +154,8 @@ class HelpCommandTest extends CommandTestBase {
                       mutual excludes the option `--format`. See section
                       "Further Infos" for the syntax of template names and
                       addresses.
+                  --version
+                      Prints the version and exists.
 
                 Available sub-commands
                   cfg      - Collection of commands to read or write the
@@ -174,6 +176,24 @@ class HelpCommandTest extends CommandTestBase {
                   `foo`. The special empty path (``) refers to the root
                   command that represents the application itself. For
                   details, please type `test-app help :addresses`.
+                     \s
+                  Template addresses:
+                  A template address is intended to uniquely identify a
+                  template. A template address has the general format
+                  `<name>@<command>`, whereas the `<name>` is the local name
+                  of the template and `<command>` the address of the owning
+                  command. For details, please type
+                  `test-app help :addresses`.
+                     \s
+                  Template names:
+                  A template can be referenced without the owning command in
+                  case it is referenced from within a command context. If
+                  so, the template name resolves to the best matching
+                  template address according to the currently executed
+                  command. For example, given the command with address
+                  `foo/bar` and the template name `name`, it refers to the
+                  first template address that exists in the list.
+                  `name@foo/bar`, `name@foo` or `name@`.
                      \s
                   Input source:
                   An input source is basically a string literal, which

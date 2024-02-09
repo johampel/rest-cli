@@ -45,6 +45,7 @@ import de.hipphampel.restcli.config.ApplicationConfigRepository;
 import de.hipphampel.restcli.env.Environment;
 import de.hipphampel.restcli.env.EnvironmentRepository;
 import de.hipphampel.restcli.exception.ExecutionException;
+import de.hipphampel.restcli.io.InputStreamProviderConfig;
 import de.hipphampel.restcli.utils.FileUtils;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -59,14 +60,16 @@ import java.util.function.Function;
 @Unremovable
 public class ApplicationCommand extends BuiltinParentCommand {
 
-  public static final Positional CMD_ARG_CONFIG_DIR = positional("<config-dir>")
+  static final Positional CMD_ARG_CONFIG_DIR = positional("<config-dir>")
       .build();
-  public static final Option CMD_OPT_CONFIG = option("-c", "--config")
+  static final Option CMD_OPT_CONFIG = option("-c", "--config")
       .parameter(CMD_ARG_CONFIG_DIR)
       .build();
-
-  public static final Option CMD_OPT_INTERACTIVE = option("-i", "--interactive")
+  static final Option CMD_OPT_INTERACTIVE = option("-i", "--interactive")
       .build();
+  static final Option CMD_OPT_VERSION = option("--version")
+      .build();
+
 
   static final Function<CommandContext, Block> HELP_SECTION_DESCRIPTION = CommandUtils.helpSection(""" 
       The main objective of this tool is to manage and execute HTTP requests. In terms of this application, HTTP requests are represented
@@ -108,10 +111,10 @@ public class ApplicationCommand extends BuiltinParentCommand {
       the `--format` option is set, the default template is used (configured via the application configuration).
             
       -i | --interactive
-      
+            
       >Run in interactive mode. If so, ${applicationName} might prompt the user to enter values for variables having no value.
       By default, ${applicationName} will fail in case a variable without a specific value is referenced.
-      
+            
       -o | --output parameter <key>=<value>
             
       >This option is only evaluated for sub-commands that execute HTTP requests. Sets an output parameter for the output format. Which
@@ -123,9 +126,23 @@ public class ApplicationCommand extends BuiltinParentCommand {
       >This option is only evaluated for sub-commands that execute HTTP requests. Specifies the template name or address to use for
       rendering the output. This option mutual excludes the option `--format`. See section "Further Infos" for the syntax of template names
       and addresses.
+            
+      --version
+            
+      >Prints the version and exists.
       """);
   static final Function<CommandContext, Block> HELP_SECTION_FURTHER_INFOS = CommandUtils.helpSection(
       HelpSnippets.FURTHER_INFOS_COMMAND_ADDRESS +
+          """
+              >
+                         
+               """ +
+          HelpSnippets.FURTHER_INFOS_TEMPLATE_ADDRESS +
+          """
+              >
+                         
+               """ +
+          HelpSnippets.FURTHER_INFOS_TEMPLATE_NAME +
           """
               >
                          
@@ -166,11 +183,15 @@ public class ApplicationCommand extends BuiltinParentCommand {
   @Override
   public CommandLineSpec commandLineSpec() {
     return new CommandLineSpec(false, CMD_OPT_CONFIG, CMD_OPT_ENVIRONMENT, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE,
-        CMD_OPT_INTERACTIVE, CMD_OPT_OUTPUT_PARAMETER, CMD_ARG_SUB_COMMAND);
+        CMD_OPT_INTERACTIVE, CMD_OPT_OUTPUT_PARAMETER, CMD_OPT_VERSION, CMD_ARG_SUB_COMMAND);
   }
 
   @Override
   public boolean execute(CommandContext context, CommandLine commandLine) {
+    if (commandLine.hasOption(CMD_OPT_VERSION)) {
+      printVersion(context);
+      return true;
+    }
     Path configPath = determineConfigPath(commandLine.getValue(CMD_ARG_CONFIG_DIR).orElse(null));
     ApplicationConfig applicationConfig = loadApplicationConfig(configPath);
     Environment environment = loadEnvironment(configPath, applicationConfig, commandLine.getValue(CMD_ARG_ENVIRONMENT).orElse(null));
@@ -191,6 +212,11 @@ public class ApplicationCommand extends BuiltinParentCommand {
         .interactive(interactive);
 
     return super.execute(context, commandLine);
+  }
+
+  void printVersion(CommandContext context) {
+    String version = CommandUtils.toString(context, InputStreamProviderConfig.fromString("builtin:/version.txt"), Map.of());
+    context.out().line(version);
   }
 
   Environment loadEnvironment(Path configPath, ApplicationConfig applicationConfig, String environmentName) {

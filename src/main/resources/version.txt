@@ -1,0 +1,1 @@
+Version ${project.version} (${os.name} ${os.arch} ${os.version}, ${maven.build.timestamp})

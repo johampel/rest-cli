@@ -116,6 +116,22 @@
     </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>version.txt</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>version.txt</exclude>
+        </excludes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>com.mycila</groupId>
@@ -166,7 +182,7 @@
         <configuration>
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            <maven.home>${maven.home}</maven.home>
+<!--            <maven.home>${maven.home}</maven.home>-->
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -183,7 +199,7 @@
               <systemPropertyVariables>
                 <native.image.url>${project.build.directory}/${project.build.finalName}-runner</native.image.url>
                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                <maven.home>${maven.home}</maven.home>
+<!--                <maven.home>${maven.home}</maven.home>-->
               </systemPropertyVariables>
             </configuration>
           </execution>
