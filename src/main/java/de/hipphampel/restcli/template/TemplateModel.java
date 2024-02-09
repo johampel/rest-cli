@@ -22,13 +22,13 @@
  */
 package de.hipphampel.restcli.template;
 
+import de.hipphampel.restcli.exception.ExecutionException;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 @RegisterForReflection
@@ -36,35 +36,47 @@ public class TemplateModel extends AbstractMap<String, Object> {
 
   private final Map<String, Object> values;
   private final Object api;
-  private final Function<String, Object> undefinedVariableCallback;
   private final Map<String, Object> computedValues;
-
-  public TemplateModel(Map<String, Object> values, Object api, Function<String, Object> undefinedVariableCallback) {
+  private final boolean interactive;
+  public TemplateModel(Map<String, Object> values, Object api, boolean interactive) {
     this.values = Objects.requireNonNull(values);
     this.api = api;
     this.computedValues = new HashMap<>();
-    this.undefinedVariableCallback = Objects.requireNonNull(undefinedVariableCallback);
+    this.interactive = interactive;
   }
 
   public TemplateModel(Map<String, Object> values, Object api) {
-    this(values, api, key -> null);
+    this(values, api, false);
   }
 
   public TemplateModel(Map<String, Object> values) {
-    this(values, null, key -> null);
+    this(values, null, false);
   }
 
   public Object get_() {
     return api;
   }
 
+  public boolean isInteractive() {
+    return interactive;
+  }
+
   @Override
   public Object get(Object key) {
     Object value = values.get(key);
     if (value == null) {
-      value = computedValues.computeIfAbsent(String.valueOf(key), var -> undefinedVariableCallback.apply(String.valueOf(var)));
+      value = computedValues.computeIfAbsent(String.valueOf(key), var -> onUndefinedVariable(String.valueOf(var)));
     }
     return value;
+  }
+
+  Object onUndefinedVariable(String variable) {
+    if (System.console()==null || !interactive) {
+      throw new ExecutionException("Reference to unknown variable \"%s\". Consider to start the application with the `--interactive` option.".formatted(variable));
+    }
+
+    System.err.printf("Please enter a value for variable \"%s\": ", variable);
+    return System.console().readLine();
   }
 
   @NotNull

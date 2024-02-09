@@ -51,6 +51,7 @@ public class Api {
   private final CommandContext context;
   private final ObjectMapper objectMapper;
   private final Transformer transformer;
+
   public Api(CommandContext context, ObjectMapper objectMapper, Transformer transformer) {
     this.context = Objects.requireNonNull(context);
     this.objectMapper = Objects.requireNonNull(objectMapper);

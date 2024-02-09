@@ -43,7 +43,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -72,12 +71,12 @@ class RequestExecutorTest {
     this.executor = executorFactory.newExecutor(new RequestContext(
         client,
         new TemplateModel(variables),
-        variables.keySet(),
         new OutputFormat(
             InputStreamProvider.ofString(""),
             Map.of()),
         mock(Output.class),
-        mock(Output.class)
+        mock(Output.class),
+        false
     ));
   }
 
@@ -95,10 +94,10 @@ class RequestExecutorTest {
     RequestContext context = new RequestContext(
         mock(HttpClient.class),
         new TemplateModel(Map.of()),
-        Set.of(),
         new OutputFormat(InputStreamProvider.ofString(""), Map.of()),
         mock(Output.class),
-        mock(Output.class)
+        mock(Output.class),
+        false
     );
     Request request = requestBuilder.buildRequest(template, context);
 

@@ -22,9 +22,9 @@
  */
 package de.hipphampel.restcli.command.builtin;
 
-import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_CONFIG_DIR;
+import static de.hipphampel.restcli.cli.commandline.CommandLineSpec.option;
+import static de.hipphampel.restcli.cli.commandline.CommandLineSpec.positional;
 import static de.hipphampel.restcli.command.CommandContext.CMD_ARG_ENVIRONMENT;
-import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_CONFIG;
 import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_ENVIRONMENT;
 import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_FORMAT;
 import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_OUTPUT_PARAMETER;
@@ -32,6 +32,8 @@ import static de.hipphampel.restcli.command.CommandContext.CMD_OPT_TEMPLATE;
 
 import de.hipphampel.restcli.cli.commandline.CommandLine;
 import de.hipphampel.restcli.cli.commandline.CommandLineSpec;
+import de.hipphampel.restcli.cli.commandline.CommandLineSpec.Option;
+import de.hipphampel.restcli.cli.commandline.CommandLineSpec.Positional;
 import de.hipphampel.restcli.cli.format.Block;
 import de.hipphampel.restcli.command.CommandAddress;
 import de.hipphampel.restcli.command.CommandContext;
@@ -57,35 +59,44 @@ import java.util.function.Function;
 @Unremovable
 public class ApplicationCommand extends BuiltinParentCommand {
 
+  public static final Positional CMD_ARG_CONFIG_DIR = positional("<config-dir>")
+      .build();
+  public static final Option CMD_OPT_CONFIG = option("-c", "--config")
+      .parameter(CMD_ARG_CONFIG_DIR)
+      .build();
+
+  public static final Option CMD_OPT_INTERACTIVE = option("-i", "--interactive")
+      .build();
+
   static final Function<CommandContext, Block> HELP_SECTION_DESCRIPTION = CommandUtils.helpSection(""" 
       The main objective of this tool is to manage and execute HTTP requests. In terms of this application, HTTP requests are represented
       as sub-commands of this tool, which can be dynamically added, e.g. by importing an OpenAPI specification.
-      
+            
       Beside the definition of the HTTP commands itself, `${applicationName}` also provides builtin commands to define and apply predefined
       environments for command execution and manage output templates for transforming the responses of the HTTP commands.
           
       >
-      
+            
       In order to get information how to import an OpenAPI specification type `${applicationName} help cmd openapi`, or just import it
       via `${applicationName} cmd openapi <command-name> @<file-with-spec>`.
       """);
 
   static final Function<CommandContext, Block> HELP_SECTION_ARGS_AND_OPTIONS = CommandUtils.helpSection("""
       <sub-command> [<sub-command-args>]
-      
+            
       >The name of the sub-command to execute. If omitted, this help page is shown. For a list of available sub-commands see the list below.
        
       -c | --config <config>
-      
+            
       >If specified, it uses the given `<config>` for the application configuration. The configuration contains several settings that
       influence the behavior of this application (e.g. where to find commands, which environment to use, ...). If not specified,
       it uses the default configuration.
-      
+            
       -e | --environment <environment>
-      
+            
       >If specified, it uses the given `<environment>` for executing HTTP commands. If this option is omitted, the default environment is
       used; you can obtain the default environment setting by calling `${applicationName} cfg get environment`.
-      
+            
       -f | --format <format>
             
       >This option is only evaluated for sub-commands that execute HTTP requests. It defines an output format how to render the response of
@@ -96,6 +107,11 @@ public class ApplicationCommand extends BuiltinParentCommand {
       >Please type `${applicationName} help :templates` to learn more about templates and their syntax. If neither the `--template` nor
       the `--format` option is set, the default template is used (configured via the application configuration).
             
+      -i | --interactive
+      
+      >Run in interactive mode. If so, ${applicationName} might prompt the user to enter values for variables having no value.
+      By default, ${applicationName} will fail in case a variable without a specific value is referenced.
+      
       -o | --output parameter <key>=<value>
             
       >This option is only evaluated for sub-commands that execute HTTP requests. Sets an output parameter for the output format. Which
@@ -149,8 +165,8 @@ public class ApplicationCommand extends BuiltinParentCommand {
 
   @Override
   public CommandLineSpec commandLineSpec() {
-    return new CommandLineSpec(false, CMD_OPT_CONFIG, CMD_OPT_ENVIRONMENT, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE, CMD_OPT_OUTPUT_PARAMETER,
-        CMD_ARG_SUB_COMMAND);
+    return new CommandLineSpec(false, CMD_OPT_CONFIG, CMD_OPT_ENVIRONMENT, CMD_OPT_FORMAT, CMD_OPT_TEMPLATE,
+        CMD_OPT_INTERACTIVE, CMD_OPT_OUTPUT_PARAMETER, CMD_ARG_SUB_COMMAND);
   }
 
   @Override
@@ -158,6 +174,7 @@ public class ApplicationCommand extends BuiltinParentCommand {
     Path configPath = determineConfigPath(commandLine.getValue(CMD_ARG_CONFIG_DIR).orElse(null));
     ApplicationConfig applicationConfig = loadApplicationConfig(configPath);
     Environment environment = loadEnvironment(configPath, applicationConfig, commandLine.getValue(CMD_ARG_ENVIRONMENT).orElse(null));
+    boolean interactive = commandLine.hasOption(CMD_OPT_INTERACTIVE);
 
     context
         .rootCommandLine(commandLine)
@@ -170,7 +187,8 @@ public class ApplicationCommand extends BuiltinParentCommand {
         .err(context.err()
             .withStyles(context.applicationConfig().isOutputWithStyles())
             .withOutputWidth(context.applicationConfig().getOutputWidth()))
-        .environment(environment);
+        .environment(environment)
+        .interactive(interactive);
 
     return super.execute(context, commandLine);
   }

@@ -43,11 +43,6 @@ import java.util.Objects;
 public class CommandContext {
 
   public static final String DEFAULT_APPLICATION_NAME = "restcli";
-  public static final Positional CMD_ARG_CONFIG_DIR = positional("<config-dir>")
-      .build();
-  public static final Option CMD_OPT_CONFIG = option("-c", "--config")
-      .parameter(CMD_ARG_CONFIG_DIR)
-      .build();
   public static final Positional CMD_ARG_ENVIRONMENT = positional("<environment>")
       .build();
   public static final Option CMD_OPT_ENVIRONMENT = option("-e", "--environment")
@@ -77,6 +72,7 @@ public class CommandContext {
   private final CommandInvoker commandInvoker;
   private final ApiFactory templateApiFactory;
   private final TemplateRenderer templateRenderer;
+  private boolean interactive;
   private CommandAddress commandAddress;
   private String applicationName;
   private ApplicationConfig applicationConfig;
@@ -102,6 +98,7 @@ public class CommandContext {
     this.environment = new Environment(null, Environment.EMPTY, EnvironmentConfig.EMPTY, EnvironmentConfig.EMPTY);
     this.httpClient = HttpClient.newBuilder().build();
     this.rootCommandLine = new CommandLine();
+    this.interactive = false;
   }
 
   public CommandContext(CommandContext source) {
@@ -118,6 +115,7 @@ public class CommandContext {
     this.environment = source.environment;
     this.httpClient = source.httpClient;
     this.rootCommandLine = source.rootCommandLine;
+    this.interactive = source.interactive;
   }
 
   public CommandInvoker commandInvoker() {
@@ -219,6 +217,15 @@ public class CommandContext {
 
   public CommandContext rootCommandLine(CommandLine rootCommandLine) {
     this.rootCommandLine = rootCommandLine;
+    return this;
+  }
+
+  public boolean interactive() {
+    return interactive;
+  }
+
+  public CommandContext interactive(boolean interactive) {
+    this.interactive = interactive;
     return this;
   }
 }

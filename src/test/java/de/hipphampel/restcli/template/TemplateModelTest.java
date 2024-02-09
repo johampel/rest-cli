@@ -22,12 +22,12 @@
  */
 package de.hipphampel.restcli.template;
 
-import org.junit.jupiter.api.Test;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import de.hipphampel.restcli.exception.ExecutionException;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class TemplateModelTest {
 
@@ -39,15 +39,11 @@ class TemplateModelTest {
   }
 
   @Test
-  void get_undefined() {
-    AtomicReference<String> ref = new AtomicReference<>();
-    TemplateModel model = new TemplateModel(Map.of(), null, key -> {
-      ref.set(UUID.randomUUID().toString());
-      return ref.get();
-    });
+  void get_undefined_notInteractive() {
+    TemplateModel model = new TemplateModel(Map.of(), null, false);
 
-    Object value = model.get("abc");
-    assertThat(value).isNotNull().isEqualTo(ref.get()).isSameAs(model.get("abc"));
-    assertThat(model.get("def")).isNotNull().isNotSameAs(value);
+    assertThatThrownBy(() -> model.get("abc"))
+        .isInstanceOf(ExecutionException.class)
+        .hasMessage("Reference to unknown variable \"abc\". Consider to start the application with the `--interactive` option.");
   }
 }

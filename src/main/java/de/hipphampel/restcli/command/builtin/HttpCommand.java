@@ -171,7 +171,7 @@ public class HttpCommand extends BuiltinCommand {
 
   RequestContext createRequestContext(CommandContext context, CommandLine commandLine) {
     Map<String, Object> variables = createVariables(context, commandLine);
-    return CommandUtils.createRequestContext(context, templateRepository, variables, variables.keySet());
+    return CommandUtils.createRequestContext(context, templateRepository, variables);
   }
 
   RequestTemplate createRequestTemplate(CommandContext context, RequestContext requestContext, CommandLine commandLine) {

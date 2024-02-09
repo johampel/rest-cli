@@ -25,6 +25,7 @@ package de.hipphampel.restcli.rest;
 import static de.hipphampel.restcli.TestUtils.assertInputStreamProvider;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import de.hipphampel.restcli.TestUtils;
@@ -39,10 +40,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.net.http.HttpClient;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -60,21 +59,19 @@ class RequestBuilderTest {
   RequestBuilder builder;
   RequestContext context;
   Map<String, Object> variables;
-  Set<String> declaredVariables;
   Function<String, Object> undefinedVariableCallback;
 
   @BeforeEach
   void beforeEach() {
-    declaredVariables = new HashSet<>();
     variables = new HashMap<>();
     undefinedVariableCallback = variable -> null;
     context = new RequestContext(
         mock(HttpClient.class),
-        new TemplateModel(variables, null, name -> undefinedVariableCallback.apply(name)),
-        declaredVariables,
+        new TemplateModel(variables, null, false),
         new OutputFormat(InputStreamProvider.ofString(""), Map.of()),
         mock(Output.class),
-        mock(Output.class)
+        mock(Output.class),
+        false
     );
   }
 
@@ -125,14 +122,14 @@ class RequestBuilderTest {
 
   @Test
   void createRenderedQueryString_noQuery() {
-    initContextVariables("abc=def;ghi=jkl", "abc;def;ghi");
+    initContextVariables("abc=def;ghi=jkl");
     RequestTemplate template = new RequestTemplate();
     assertThat(builder.createRenderedQueryString(template, context)).isEqualTo("");
   }
 
   @Test
   void createRenderedQueryString_withQuery() {
-    initContextVariables("abc=def;ghi=jkl", "abc;def;ghi");
+    initContextVariables("abc=def;ghi=jkl");
     RequestTemplate template = new RequestTemplate()
         .queryParameters(new TreeMap<>(Map.of(
             "?=", "?&",
@@ -152,7 +149,7 @@ class RequestBuilderTest {
         "${abc}", List.of("value2", "${def}", "${ghi}"),
         "key2", List.of("${def}"),
         "key3", List.of("${ghi}")));
-    initContextVariables("abc=def;ghi=jkl", "abc;def;ghi");
+    initContextVariables("abc=def;ghi=jkl");
     assertThat(builder.createRenderedHeaders(template, context)).isEqualTo(Map.of(
         "key1", List.of("value1"),
         "def", List.of("value2", "jkl"),
@@ -162,7 +159,7 @@ class RequestBuilderTest {
 
   @Test
   void render_filledVariables() {
-    initContextVariables("abc=def;ghi=jkl", "abc;ghi");
+    initContextVariables("abc=def;ghi=jkl");
     assertThat(builder.render("10 ${abc}", context.templateModel())).isEqualTo("10 def");
   }
 
@@ -170,7 +167,7 @@ class RequestBuilderTest {
   void render_fail() {
     assertThatThrownBy(() -> builder.render("10 ${foo}", context.templateModel()))
         .isInstanceOf(ExecutionException.class)
-        .hasMessage("Failed to render template.");
+        .hasMessage("Reference to unknown variable \"foo\". Consider to start the application with the `--interactive` option.");
   }
 
   @ParameterizedTest
@@ -180,8 +177,8 @@ class RequestBuilderTest {
       "xyz${abc}, true"
   })
   void isTextOrFilledVariableReference(String value, boolean expected) {
-    initContextVariables("abc=def;ghi=jkl", "abc;def;ghi");
-
+    initContextVariables("abc=def;ghi=jkl");
+    assertThat(RequestBuilder.isTextOrFilledVariableReference(context, value)).isEqualTo(expected);
   }
 
   @Test
@@ -189,8 +186,7 @@ class RequestBuilderTest {
     assertThat(RequestBuilder.urlEncode("abc?=")).isEqualTo("abc%3F%3D");
   }
 
-  void initContextVariables(String variables, String declaredVariables) {
-    this.declaredVariables.addAll(TestUtils.stringToList(declaredVariables));
+  void initContextVariables(String variables) {
     this.variables.putAll(TestUtils.stringToList(variables).stream()
         .map(Pair::fromString)
         .collect(Collectors.toMap(Pair::first, Pair::second)));

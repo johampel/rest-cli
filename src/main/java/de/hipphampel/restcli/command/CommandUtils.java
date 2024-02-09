@@ -101,7 +101,7 @@ public class CommandUtils {
   }
 
   public static TemplateModel templateModelOf(CommandContext context, Map<String, Object> values) {
-    return new TemplateModel(values, context.apiFactory().createApi(context));
+    return new TemplateModel(values, context.apiFactory().createApi(context), context.interactive());
   }
 
   public static String toString(CommandContext context, InputStreamProviderConfig config, Map<String, Object> model) {
@@ -180,19 +180,17 @@ public class CommandUtils {
   }
 
   public static RequestContext createRequestContext(CommandContext context, TemplateRepository templateRepository,
-      Map<String, Object> variables, Set<String> declaredVariables) {
+      Map<String, Object> variables) {
     Map<String, Object> effectiveVariables = new HashMap<>(context.environment().getVariables());
     effectiveVariables.putAll(variables);
-    Set<String> effectiveDeclaredVariables = new HashSet<>(context.environment().getVariables().keySet());
-    effectiveDeclaredVariables.addAll(declaredVariables);
     OutputFormat format = createOutputFormat(context, templateRepository, effectiveVariables);
     return new RequestContext(
         context.httpClient(),
         templateModelOf(context, effectiveVariables),
-        effectiveDeclaredVariables,
         format,
         context.out(),
-        context.err());
+        context.err(),
+        context.interactive());
   }
 
   static OutputFormat createOutputFormat(CommandContext context, TemplateRepository templateRepository, Map<String, Object> variables) {

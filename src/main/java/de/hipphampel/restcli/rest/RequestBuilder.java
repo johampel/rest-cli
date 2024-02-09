@@ -87,7 +87,7 @@ public class RequestBuilder {
   Map<String, List<String>> createRenderedHeaders(RequestTemplate template, RequestContext context) {
     return template.headers().entrySet().stream()
         .filter(e -> isTextOrFilledVariableReference(context, e.getKey()))
-        .map(e ->new Pair<>(
+        .map(e -> new Pair<>(
             render(e.getKey(), context.templateModel()),
             e.getValue().stream()
                 .filter(v -> isTextOrFilledVariableReference(context, v))
@@ -106,10 +106,11 @@ public class RequestBuilder {
       return true;
     }
     String variable = value.substring(2, value.length() - 1);
-    if (context.templateModel().get(variable) != null) {
+    if (variable.contains("$")) {
       return true;
     }
-    return !context.declaredVariables().contains(variable);
+
+    return context.templateModel().isInteractive() || context.templateModel().containsKey(variable);
   }
 
   static String urlEncode(String str) {

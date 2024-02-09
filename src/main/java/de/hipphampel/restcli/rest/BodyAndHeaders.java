@@ -34,10 +34,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 @RegisterForReflection
 public abstract class BodyAndHeaders<T extends Openable> {
@@ -80,9 +83,28 @@ public abstract class BodyAndHeaders<T extends Openable> {
   @JsonIgnore
   public Document getXmlBody() throws IOException {
     try (InputStream in = getBody().open()) {
-      return documentBuilderFactory.newDocumentBuilder().parse(in);
+      DocumentBuilder builder= documentBuilderFactory.newDocumentBuilder();
+      builder.setErrorHandler(new ThrowingErrorHandler());
+      return builder.parse(in);
     } catch (ParserConfigurationException | SAXException e) {
       throw new IOException(e);
+    }
+  }
+
+  private static class ThrowingErrorHandler implements ErrorHandler {
+    @Override
+    public void warning(SAXParseException exception) throws SAXException {
+
+    }
+
+    @Override
+    public void error(SAXParseException exception) throws SAXException {
+      throw new SAXException(exception);
+    }
+
+    @Override
+    public void fatalError(SAXParseException exception) throws SAXException {
+      throw new SAXException(exception);
     }
   }
 }

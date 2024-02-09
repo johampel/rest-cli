@@ -54,7 +54,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -249,10 +248,10 @@ class CustomHttpCommandTest extends HttpCommandTestBase {
     RequestContext requestContext = new RequestContext(
         context.httpClient(),
         new TemplateModel(Map.of("one", "%${two}", "two", "zwei", "three", "string:drei")),
-        Set.of("one", "two", "three"),
         new OutputFormat(InputStreamProvider.ofString("output"), Map.of()),
         context.out(),
-        context.err()
+        context.err(),
+        false
     );
     CommandConfig config = initEmptyConfig();
     RestCommandConfig restConfig = config.getRestConfig();

@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -139,7 +138,7 @@ public class CustomHttpCommand extends CustomCommand {
     Set<String> declaredVariables = config().getRestConfig().getParameters().getParameters().stream()
         .map(ParameterConfig::variable)
         .collect(Collectors.toSet());
-    return CommandUtils.createRequestContext(context, templateRepository, variables, declaredVariables);
+    return CommandUtils.createRequestContext(context, templateRepository, variables);
   }
 
   Map<String, Object> collectVariables(CommandLine commandLine) {

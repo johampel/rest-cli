@@ -62,7 +62,7 @@ class TemplateRendererTest {
     ));
     assertThatThrownBy(() -> renderer.render("${bad}", model))
         .isInstanceOf(ExecutionException.class)
-        .hasMessage("Failed to render template.");
+        .hasMessage("Reference to unknown variable \"bad\". Consider to start the application with the `--interactive` option.");
   }
 
   @Test

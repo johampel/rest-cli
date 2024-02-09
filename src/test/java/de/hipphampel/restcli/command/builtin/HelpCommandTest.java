@@ -76,9 +76,10 @@ class HelpCommandTest extends CommandTestBase {
 
                 Usage
                   restcli [-c|--config <config-dir>] [-e|--environment
-                          <environment>] [-o|--output-parameter
-                          <key>=<value>]... [(-f|--format <format>) |
-                          (-t|--template <name-or-address>)] [<sub-command>
+                          <environment>] [-i|--interactive]
+                          [-o|--output-parameter <key>=<value>]...
+                          [(-f|--format <format>) | (-t|--template
+                          <name-or-address>)] [<sub-command>
                           [<sub-command-args>...]]
 
                 Description
@@ -134,6 +135,11 @@ class HelpCommandTest extends CommandTestBase {
                       `--template` nor the `--format` option is set, the
                       default template is used (configured via the
                       application configuration).
+                  -i | --interactive
+                      Run in interactive mode. If so, test-app might prompt
+                      the user to enter values for variables having no
+                      value. By default, test-app will fail in case a
+                      variable without a specific value is referenced.
                   -o | --output parameter <key>=<value>
                       This option is only evaluated for sub-commands that
                       execute HTTP requests. Sets an output parameter for

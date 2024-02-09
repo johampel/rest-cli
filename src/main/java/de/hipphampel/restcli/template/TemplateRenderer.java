@@ -46,6 +46,7 @@ public class TemplateRenderer {
   public TemplateRenderer() {
     this.configuration = new Configuration(Configuration.VERSION_2_3_22);
     this.configuration.setNumberFormat("c");
+    this.configuration.setLogTemplateExceptions(false);
     this.configuration.setObjectWrapper(new BeansWrapperBuilder(this.configuration.getIncompatibleImprovements()).build());
   }
 
@@ -93,6 +94,9 @@ public class TemplateRenderer {
       template.process(model, output);
       return output;
     } catch (TemplateException | IOException e) {
+      if (e.getCause() instanceof ExecutionException ee) {
+        throw ee;
+      }
       throw new ExecutionException("Failed to render template.", e);
     }
   }

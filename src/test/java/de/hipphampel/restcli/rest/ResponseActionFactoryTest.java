@@ -41,7 +41,6 @@ import java.io.StringWriter;
 import java.net.http.HttpClient;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -66,12 +65,12 @@ public class ResponseActionFactoryTest {
     this.context = new RequestContext(
         mock(HttpClient.class),
         new TemplateModel(Map.of("key", "value")),
-        Set.of("key"),
         new OutputFormat(
             InputStreamProvider.ofString("Hello ${_response.statusCode}"),
             Map.of("param", "xyz")),
         new Output(out),
-        new Output(err));
+        new Output(err),
+        false);
     this.response = mock(Response.class);
     this.request = mock(Request.class);
   }

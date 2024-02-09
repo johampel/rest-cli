@@ -28,29 +28,28 @@ import de.hipphampel.restcli.template.TemplateModel;
 import java.net.http.HttpClient;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public record RequestContext(
     HttpClient client,
     TemplateModel templateModel,
-    Set<String> declaredVariables,
     OutputFormat format,
     Output out,
-    Output err) {
+    Output err,
+    boolean interactive) {
 
   public RequestContext(
       HttpClient client,
       TemplateModel templateModel,
-      Set<String> declaredVariables,
       OutputFormat format,
       Output out,
-      Output err) {
+      Output err,
+      boolean interactive) {
     this.client = Objects.requireNonNull(client);
     this.templateModel = Objects.requireNonNull(templateModel);
-    this.declaredVariables = Objects.requireNonNull(declaredVariables);
     this.format = Objects.requireNonNull(format);
     this.out = Objects.requireNonNull(out);
     this.err = Objects.requireNonNull(err);
+    this.interactive = interactive;
   }
 
   public record OutputFormat(InputStreamProvider format, Map<String, String> parameters) {
