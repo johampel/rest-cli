@@ -22,6 +22,7 @@
  */
 package de.hipphampel.restcli;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.inject.Produces;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -29,6 +30,66 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
+
+@RegisterForReflection(targets = {
+    // For conversion Swagger 2.x -> OpenAPI 3.0.x
+    io.swagger.v3.oas.models.Components.class,
+    io.swagger.v3.oas.models.ExternalDocumentation.class,
+    io.swagger.v3.oas.models.OpenAPI.class,
+    io.swagger.v3.oas.models.Operation.class,
+    io.swagger.v3.oas.models.PathItem.class,
+    io.swagger.v3.oas.models.Paths.class,
+    io.swagger.v3.oas.models.SpecVersion.class,
+    io.swagger.v3.oas.models.callbacks.Callback.class,
+    io.swagger.v3.oas.models.examples.Example.class,
+    io.swagger.v3.oas.models.headers.Header.class,
+    io.swagger.v3.oas.models.info.Contact.class,
+    io.swagger.v3.oas.models.info.Info.class,
+    io.swagger.v3.oas.models.info.License.class,
+    io.swagger.v3.oas.models.links.Link.class,
+    io.swagger.v3.oas.models.links.LinkParameter.class,
+    io.swagger.v3.oas.models.media.ArraySchema.class,
+    io.swagger.v3.oas.models.media.BinarySchema.class,
+    io.swagger.v3.oas.models.media.BooleanSchema.class,
+    io.swagger.v3.oas.models.media.ByteArraySchema.class,
+    io.swagger.v3.oas.models.media.ComposedSchema.class,
+    io.swagger.v3.oas.models.media.Content.class,
+    io.swagger.v3.oas.models.media.DateSchema.class,
+    io.swagger.v3.oas.models.media.DateTimeSchema.class,
+    io.swagger.v3.oas.models.media.Discriminator.class,
+    io.swagger.v3.oas.models.media.EmailSchema.class,
+    io.swagger.v3.oas.models.media.Encoding.class,
+    io.swagger.v3.oas.models.media.EncodingProperty.class,
+    io.swagger.v3.oas.models.media.FileSchema.class,
+    io.swagger.v3.oas.models.media.IntegerSchema.class,
+    io.swagger.v3.oas.models.media.JsonSchema.class,
+    io.swagger.v3.oas.models.media.MapSchema.class,
+    io.swagger.v3.oas.models.media.MediaType.class,
+    io.swagger.v3.oas.models.media.NumberSchema.class,
+    io.swagger.v3.oas.models.media.ObjectSchema.class,
+    io.swagger.v3.oas.models.media.PasswordSchema.class,
+    io.swagger.v3.oas.models.media.Schema.class,
+    io.swagger.v3.oas.models.media.StringSchema.class,
+    io.swagger.v3.oas.models.media.UUIDSchema.class,
+    io.swagger.v3.oas.models.media.XML.class,
+    io.swagger.v3.oas.models.parameters.CookieParameter.class,
+    io.swagger.v3.oas.models.parameters.HeaderParameter.class,
+    io.swagger.v3.oas.models.parameters.Parameter.class,
+    io.swagger.v3.oas.models.parameters.PathParameter.class,
+    io.swagger.v3.oas.models.parameters.QueryParameter.class,
+    io.swagger.v3.oas.models.parameters.RequestBody.class,
+    io.swagger.v3.oas.models.responses.ApiResponse.class,
+    io.swagger.v3.oas.models.responses.ApiResponses.class,
+    io.swagger.v3.oas.models.security.OAuthFlow.class,
+    io.swagger.v3.oas.models.security.OAuthFlows.class,
+    io.swagger.v3.oas.models.security.Scopes.class,
+    io.swagger.v3.oas.models.security.SecurityRequirement.class,
+    io.swagger.v3.oas.models.security.SecurityScheme.class,
+    io.swagger.v3.oas.models.servers.Server.class,
+    io.swagger.v3.oas.models.servers.ServerVariable.class,
+    io.swagger.v3.oas.models.servers.ServerVariables.class,
+    io.swagger.v3.oas.models.tags.Tag.class,
+})
 public class Beans {
 
   @Produces

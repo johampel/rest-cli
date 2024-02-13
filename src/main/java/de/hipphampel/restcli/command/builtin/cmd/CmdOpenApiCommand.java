@@ -55,6 +55,7 @@ import io.quarkus.arc.Unremovable;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.converter.SwaggerConverter;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -250,20 +251,28 @@ public class CmdOpenApiCommand extends CmdWriteCommandBase {
   }
 
   static Spec readOpenAPISpec(CommandContext context, InputStreamProviderConfig name) {
+    String content = CommandUtils.toString(context, name, Map.of());
+
+    // Try version 3.x
     ParseOptions resolve = new ParseOptions();
     resolve.setResolve(true);
     resolve.setFlatten(true);
     resolve.setResolveFully(true);
-    String content = CommandUtils.toString(context, name, Map.of());
     SwaggerParseResult result = new OpenAPIV3Parser().readContents(content, List.of(), resolve);
-    if (result.getOpenAPI() == null) {
-      throw new ExecutionException("OpenAPI specification contains problems: %s".formatted(String.join("\n", result.getMessages())));
 
+    // Try Version 2.x
+    if (result.getOpenAPI() == null) {
+      result = new SwaggerConverter().readContents(content, List.of(), resolve);
     }
-    for (String message : result.getMessages()) {
-      CommandUtils.showWarning(context, "%s", message);
+
+    if (result.getOpenAPI() != null) {
+      for (String message : result.getMessages()) {
+        CommandUtils.showWarning(context, "While reading OpenAPI Spec: %s.", message);
+      }
+      return new Spec(result.getOpenAPI());
     }
-    return new Spec(result.getOpenAPI());
+
+    throw new ExecutionException("OpenAPI specification contains problems: %s".formatted(String.join("\n", result.getMessages())));
   }
 
   static boolean isOperationRelevant(Spec spec, OperationCoordinate coordinate, ImportContext importContext) {
